@@ -34,6 +34,24 @@ function ListagemEmprestimos(): JSX.Element {
         return new Date(date).toLocaleDateString('pt-BR');
     };
 
+    const handleRemoverEmprestimo = async (id_emprestimo: number) => {
+        const confirmar = window.confirm("Você realmente deseja remover este registro?");
+        if (confirmar) {
+            try {
+                const sucesso = await EmprestimoRequests.removerEmprestimo(id_emprestimo);
+                if (sucesso) {
+                    alert("Empréstimo removido com sucesso");
+                    setEmprestimos(emprestimos.filter(emprestimo => emprestimo.id_emprestimo !== id_emprestimo));
+                } else {
+                    alert("Não foi possível remover o registro.");
+                }
+            } catch (error) {
+                console.error("Erro ao remover empréstimo:", error);
+                alert("Erro ao remover empréstimo.");
+            }
+        }
+    };
+
     return (
         <main className="bg-gray-200 flex-1 flex flex-col px-4 sm:px-6 md:px-10 py-6 md:py-10 overflow-hidden">
             <div className="w-full max-w-7xl mx-auto flex flex-col sm:flex-row items-center gap-4 mb-6 md:mb-8 flex-shrink-0">
@@ -61,26 +79,31 @@ function ListagemEmprestimos(): JSX.Element {
                         </thead>
                         <tbody className="divide-y divide-slate-200">
                             {currentEmprestimos && currentEmprestimos.length > 0 ? (
-                                currentEmprestimos.map((emp) => (
-                                    <tr className="text-center md:text-left transition-colors hover:bg-slate-50 group" key={emp.id_emprestimo}>
-                                        <td className="p-3 md:p-4 hidden md:table-cell text-slate-500">{emp.id_emprestimo}</td>
-                                        <td className="p-3 md:p-4 font-medium text-slate-700">{emp.aluno.nome} {emp.aluno.sobrenome}</td>
-                                        <td className="p-3 md:p-4 text-slate-700 truncate max-w-[150px] md:max-w-xs" title={emp.livro.titulo}>{emp.livro.titulo}</td>
-                                        <td className="p-3 md:p-4 hidden sm:table-cell text-center text-slate-600">{formatDate(emp.data_emprestimo)}</td>
-                                        <td className="p-3 md:p-4 hidden lg:table-cell text-center text-slate-600">{formatDate(emp.data_devolucao)}</td>
+                                currentEmprestimos.map((emprestimo) => (
+                                    <tr className="text-center md:text-left transition-colors hover:bg-slate-50 group" key={emprestimo.id_emprestimo}>
+                                        <td className="p-3 md:p-4 hidden md:table-cell text-slate-500">{emprestimo.id_emprestimo}</td>
+                                        <td className="p-3 md:p-4 font-medium text-slate-700">{emprestimo.aluno.nome} {emprestimo.aluno.sobrenome}</td>
+                                        <td className="p-3 md:p-4 text-slate-700 truncate max-w-[150px] md:max-w-xs" title={emprestimo.livro.titulo}>{emprestimo.livro.titulo}</td>
+                                        <td className="p-3 md:p-4 hidden sm:table-cell text-center text-slate-600">{formatDate(emprestimo.data_emprestimo)}</td>
+                                        <td className="p-3 md:p-4 hidden lg:table-cell text-center text-slate-600">{formatDate(emprestimo.data_devolucao)}</td>
                                         <td className="p-3 md:p-4 text-center">
-                                            <span className={`px-2 py-1 rounded-full text-[10px] md:text-xs font-bold ${emp.status_emprestimo === "Devolvido" ? "bg-emerald-100 text-emerald-700" :
-                                                emp.status_emprestimo === "Atrasado" ? "bg-red-100 text-red-700" :
+                                            <span className={`px-2 py-1 rounded-full text-[10px] md:text-xs font-bold ${emprestimo.status_emprestimo === "Devolvido" ? "bg-emerald-100 text-emerald-700" :
+                                                emprestimo.status_emprestimo === "Atrasado" ? "bg-red-100 text-red-700" :
                                                     "bg-sky-100 text-sky-700"
                                                 }`}>
-                                                {emp.status_emprestimo}
+                                                {emprestimo.status_emprestimo}
                                             </span>
                                         </td>
                                         <td className="p-2 md:p-4">
                                             <div className="flex flex-col sm:flex-row items-center justify-center gap-1 md:gap-2">
                                                 <button className="w-full sm:w-auto bg-sky-100 text-sky-700 px-3 py-1.5 rounded-md text-xs md:text-sm font-medium hover:bg-sky-600 hover:text-white transition-all">Detalhes</button>
                                                 <button className="w-full sm:w-auto bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-md text-xs md:text-sm font-medium hover:bg-emerald-600 hover:text-white transition-all">Atualizar</button>
-                                                <button className="w-full sm:w-auto bg-red-100 text-red-700 px-3 py-1.5 rounded-md text-xs md:text-sm font-medium hover:bg-red-600 hover:text-white transition-all">Deletar</button>
+                                                <button
+                                                    className="w-full sm:w-auto bg-red-100 text-red-700 px-3 py-1.5 rounded-md text-xs md:text-sm font-medium hover:bg-red-600 hover:text-white transition-all"
+                                                    onClick={() => emprestimo.id_emprestimo && handleRemoverEmprestimo(emprestimo.id_emprestimo)}
+                                                >
+                                                    Deletar
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
